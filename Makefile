@@ -19,4 +19,8 @@ create_kind_cluster: install_kind install_kubectl create_docker_registry
 	kubectl get nodes
 
 create_docker_registry: 
-	docker run --name local-registry -d --restart=always -p 5000:5000 registry:2
+	if docker ps | grep -q 'local-registry'; \
+		then echo "****** Local registry already created; skipping ******"; \
+		else docker run --name local-registry -d --restart=always -p 5000:5000 registry:2; \
+	fi 
+
