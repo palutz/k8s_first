@@ -10,3 +10,10 @@ stop_website:
 install_kind:
 	curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.12.0/kind-darwin-amd64
 	chmod +x ./kind
+
+install_kubectl:
+	brew install kubectl
+
+create_kind_cluster: install_kind install_kubectl
+	kind create cluster --name firstnginx01
+	kubectl get nodes
