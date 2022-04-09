@@ -14,6 +14,9 @@ install_kind:
 install_kubectl:
 	brew install kubectl
 
-create_kind_cluster: install_kind install_kubectl
+create_kind_cluster: install_kind install_kubectl create_docker_registry
 	kind create cluster --name firstnginx01
 	kubectl get nodes
+
+create_docker_registry: 
+	docker run --name local-registry -d --restart=always -p 5000:5000 registry:2
