@@ -15,7 +15,7 @@ install_kubectl:
 	brew install kubectl
 
 create_kind_cluster: install_kind install_kubectl create_docker_registry
-	kind create cluster --name firstnginx01 --config ./kind_config.yaml || true
+	./kind create cluster --name firstnginx01 --config ./kind_config.yaml || true
 	kubectl get nodes
 	
 create_docker_registry: 
@@ -27,6 +27,15 @@ create_docker_registry:
 connect_registry_to_kind_network:
 	docker network connect kind local-registry || true
 
-conect_registry_to_kind:
+connect_registry_to_kind: connect_registry_to_kind_network
 	kubectl apply -f ./kind_configmap.yaml
+
+create_kind_cluster_with_registry:
+	$(MAKE) create_kind_cluster && $(MAKE) connect_registry_to_kind_network
+
+delete_kind_cluster: delete_docker_registry
+	./kind delete clusters firstnginx01
+
+delete_docker_registry:
+	docker stop local-registry && docker rm local-registry
 

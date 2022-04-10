@@ -1,0 +1,1 @@
+kubectl create deployment --dry-run=client --image localhost:5000/firstnginx01 firstnginx01 --output=yaml > deployment.yaml
