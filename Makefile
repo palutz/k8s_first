@@ -1,14 +1,18 @@
 #!/usr/bin/env make
 
+.PHONY: run_website stop_website install_kind install_kubectl create_kind_cluster create_docker_registry connect_registry_to_kind_network connect_registry_to_kind create_kind_cluster_with_registry delete_kind_cluster delete_docker_registry
+
 run_website:
 	docker build -t firstnginx01 .  
-	docker run -d -p 3000:80 -h= firstnginx01
+	docker run --rm -d -p 3000:80 -h= firstnginx01
 
 stop_website:
-	docker stop $(docker ps -q --filter ancestor= firstnginx01)
+	$(eval imageToStop = $(shell (docker ps -q -f ancestor=firstnginx01)))
+	@echo $(imageToStop)
+	docker stop $(imageToStop)
 
 install_kind:
-	curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.12.0/kind-darwin-amd64
+	curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.12.0/kind-darwin-amd64; \
 	chmod +x ./kind
 
 install_kubectl:
