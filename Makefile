@@ -2,7 +2,7 @@
 
 run_website:
 	docker build -t firstnginx01 .  
-	docker run -d -p 5000:80 -h= firstnginx01
+	docker run -d -p 3000:80 -h= firstnginx01
 
 stop_website:
 	docker stop $(docker ps -q --filter ancestor= firstnginx01)
