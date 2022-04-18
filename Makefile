@@ -1,8 +1,9 @@
 #!/usr/bin/env make
 
-.PHONY: run_website stop_website install_kind install_kubectl create_kind_cluster create_docker_registry connect_registry_to_kind_network connect_registry_to_kind create_kind_cluster_with_registry delete_kind_cluster delete_docker_registry
+.PHONY: run_website stop_website install_kind install_kubectl create_kind_cluster create_docker_registry connect_registry_to_kind_network connect_registry_to_kind create_kind_cluster_with_registry delete_kind_cluster delete_docker_registry create_deployment_file tag_local_image push_img_to_localregistry create_service_file apply_service_file list_app_services
 
 APP_NAME = firstnginx01
+LOCAL_APP_NAME = myfirst01
 
 run_website:
 	docker build -t $(APP_NAME) .  
@@ -30,7 +31,7 @@ create_kind_cluster: install_kind install_kubectl create_docker_registry
 create_docker_registry: 
 	if docker ps | grep -q 'local-registry'; \
 		then echo "****** Local registry already created; skipping ******"; \
-		else docker run --name local-registry -d --restart=always -p 5000:5000 registry:2; \
+		else docker run --name my-registry -d --restart=always -p 5000:5000 -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 registry:2; \
 	fi 
 
 connect_registry_to_kind_network:
@@ -46,7 +47,16 @@ delete_kind_cluster: delete_docker_registry
 	./kind delete clusters $(APP_NAME)
 
 delete_docker_registry:
-	docker stop local-registry && docker rm local-registry
+	docker container stop my-registry && docker container rm -v my-registry
+
+create_deployment_file:
+	kubectl create deployment --dry-run=client --image localhost:5000/$(APP_NAME) $(APP_NAME) --output=yaml > deployment.yaml
+
+tag_local_image:
+	docker tag $(APP_NAME):latest localhost:5000/$(LOCAL_APP_NAME)$
+
+push_img_to_localregistry:
+	docker push localhost:5000/$(LOCAL_APP_NAME)
 
 create_service_file:
 	kubectl create service clusterip --dry-run=client --tcp=80:80 $(APP_NAME) --output=yaml > service.yaml
